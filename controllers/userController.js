@@ -69,7 +69,7 @@ const userController = {
   },
   getTweets: (req, res) => {
     User.findByPk(req.params.id,
-        { include: [{ model: Tweet, include: [Like, Reply, User] }] }
+      { include: [{ model: Tweet, include: [Like, Reply, User] }] }
     )
       .then(user => {
         if (!user || user.role === 'admin') {
@@ -165,7 +165,7 @@ const userController = {
           password: bcrypt.hashSync(password, 10)
         })
           .then(() => {
-            return res.json({status:'success', message:'資料編輯成功'})
+            return res.json({ status: 'success', message: '資料編輯成功' })
           })
       })
   },
@@ -176,14 +176,24 @@ const userController = {
         return res.json(user)
       })
   },
-    getFollowings: (req, res) => {
-        return User.findByPk(req.params.id,
-            {
-                include: [{ model: User, as: 'Followings' }]
-            }
-        ).then(followings => {
-            return res.json(followings)
-        })
+
+  getFollowings: (req, res) => {
+    return User.findByPk(req.params.id,
+      {
+        include: [{ model: User, as: 'Followings' }]
+      }
+    ).then(followings => {
+      let followship = (followings.Followings).map(f => ({
+        followingId: f.id,
+        email: f.email,
+        name: f.name,
+        account: f.account,
+        cover: f.cover,
+        avatar: f.avatar,
+        followerId: f.Followship.followerId
+      }))
+      return res.json(followship)
+    })
   }
 }
 
