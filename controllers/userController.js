@@ -209,54 +209,6 @@ const userController = {
         }).then(followings => {
       return res.json(followings.Followings)
     })
-  },
-  putUser:(req,res) =>{
-    const { name, introduction } = req.body
-    const { files } = req
-    if (files) {
-      if (files['avatar'][0]) {
-        imgur.setClientID(IMGUR_CLIENT_ID)
-        imgur.upload(files['avatar'][0].path,  (err, img) => {
-          return User.findByPk(helpers.getUser(req).id)
-              .then(    user =>{
-                  user.update({
-                name,
-                introduction,
-                avatar: files.avatar ? img.data.link : user.avatar,
-                cover: user.cover,
-              })} )
-
-        })
-      }
-      if (files['cover'][0]) {
-        imgur.setClientID(IMGUR_CLIENT_ID)
-        imgur.upload(files['cover'][0].path,  (err, img) => {
-          User.findByPk(helpers.getUser(req).id)
-              .then(user=>{
-           user.update({
-            name,
-            introduction,
-            avatar: user.avatar,
-            cover: files.cover,getLikes
-          })})
-          return res
-              .status(200)
-              .json({ status: 'success', message: 'Updateaa user successfully.' })
-        })
-      }
-    } else {
-      User.findByPk(helpers.getUser(req).id)
-          .then( user=>{
-            user.update({
-              name,
-              introduction,
-        avatar: user.avatar,
-        cover: user.cover,
-      })
-      return res
-          .status(200)
-          .json({ status: 'success', message: 'Updateaaaaaa user successfully.' })
-          })}
   }
 }
 
