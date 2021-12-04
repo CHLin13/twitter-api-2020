@@ -26,20 +26,20 @@ const userController = {
       return res.json({ status: 'error', message: '超過字數上限' })
     }
     User.findOne({ where: { [Op.or]: [{ email }, { account }] } })
-      .then(user => {
-        if (user) {
-          return res.json({ status: 'error', message: '信箱或帳戶重複' })
-        }
-        User.create({
-          account,
-          name,
-          email,
-          password: bcrypt.hashSync(req.body.password, 10)
-        })
-          .then(() => {
-            return res.json({ status: 'success', message: '成功註冊帳號' })
+        .then(user => {
+          if (user) {
+            return res.json({ status: 'error', message: '信箱或帳戶重複' })
+          }
+          User.create({
+            account,
+            name,
+            email,
+            password: bcrypt.hashSync(req.body.password, 10)
           })
-      })
+              .then(() => {
+                return res.json({ status: 'success', message: '成功註冊帳號' })
+              })
+        })
   },
 
   signIn: (req, res) => {
@@ -111,13 +111,13 @@ const userController = {
         { model: User, as: 'Followers' }
       ]
     })
-      .then(user => {
-        if (!user || user.role === 'admin') {
-          return res.json({ status: 'error', message: '權限錯誤' })
-        }
-        user.dataValues.isFollowed = (user.Followers.map(u => u.id).includes(req.user.id))
-        return res.json(user)
-      })
+        .then(user => {
+          if (!user || user.role === 'admin') {
+            return res.json({ status: 'error', message: '權限錯誤' })
+          }
+          user.dataValues.isFollowed = (user.Followers.map(u => u.id).includes(req.user.id))
+          return res.json(user)
+        })
   },
 
   getRepliedTweets: (req, res) => {
@@ -128,22 +128,40 @@ const userController = {
       return res.json(replies)
     })
   },
-
   getLikes: (req, res) => {
     Like.findAll({
       where: { UserId: req.params.id },
       include: [
         {
           model: Tweet,
-          include: { model: User }
+          include: [{ model: User },
+            Reply,
+            Like,
+          ],
+          attributes:[
+              'id',
+              'UserId',
+              'description',
+            'createdAt',
+            'updatedAt',
+            [
+              sequelize.literal(
+                  '(SELECT COUNT(*) FROM Likes WHERE Likes.TweetId = Tweet.id)'
+              ),
+              'likeCount'
+            ],
+            [
+              sequelize.literal(
+                  '(SELECT COUNT(*) FROM Replies WHERE Replies.TweetId = Tweet.id)'
+              ),
+              'replyCount'
+            ]]
         }
       ]
+    }).then(like => {
+      return res.json(like)
     })
-      .then(like => {
-        return res.json(like)
-      })
   },
-
   putUser: async (req, res) => {
     const { name, introduction } = req.body
     if (req.params.id !== String(helpers.getUser(req).id)) {
@@ -192,66 +210,66 @@ const userController = {
       User.findOne({ where: { email } }),
       User.findOne({ where: { account } })
     ])
-      .then(([user, anotherUserE, anotherUserA]) => {
-        if (anotherUserE && anotherUserE.email !== user.email) {
-          return res.json({ status: 'error', message: '不能使用此email' })
-        }
-        if (anotherUserA && anotherUserA.account !== user.account) {
-          return res.json({ status: 'error', message: '不能使用此account' })
-        }
-        user.update({
-          account,
-          name,
-          email,
-          password: bcrypt.hashSync(password, 10)
-        })
-          .then(() => {
-            return res.json({ status: 'success', message: '資料編輯成功' })
+        .then(([user, anotherUserE, anotherUserA]) => {
+          if (anotherUserE && anotherUserE.email !== user.email) {
+            return res.json({ status: 'error', message: '不能使用此email' })
+          }
+          if (anotherUserA && anotherUserA.account !== user.account) {
+            return res.json({ status: 'error', message: '不能使用此account' })
+          }
+          user.update({
+            account,
+            name,
+            email,
+            password: bcrypt.hashSync(password, 10)
           })
-      })
+              .then(() => {
+                return res.json({ status: 'success', message: '資料編輯成功' })
+              })
+        })
   },
 
   getCurrentUser: (req, res) => {
     return User.findByPk(req.user.id)
-      .then(user => {
-        return res.json(user)
-      })
+        .then(user => {
+          return res.json(user)
+        })
   },
 
   getFollowers: (req, res) => {
     return User.findByPk(req.params.id,
-      {
-        include: [{
-          model: User, as: 'Followers',
-          attributes: [['id', 'followerId'],
-            'name',
-            'account',
-            'avatar',
-            'cover',
-            'introduction',]
-        }],
-        attributes: ['id', 'name', 'account', 'avatar', 'cover']
-      }).then(user => {
-        return res.json(user.Followers)
-      })
+        {
+          include: [{
+            model: User, as: 'Followers',
+            attributes: [['id', 'followerId'],
+              'name',
+              'account',
+              'avatar',
+              'cover',
+              'introduction',]
+          }],
+          attributes: ['id', 'name', 'account', 'avatar', 'cover']
+        }).then(user => {
+      return res.json(user.Followers)
+    })
   },
 
   getFollowings: (req, res) => {
     return User.findByPk(req.params.id,
-      {
-        include: [{
-          model: User, as: 'Followings',
-          attributes: [['id', 'followingId'],
-            'name',
-            'account',
-            'avatar',
-            'cover',
-            'introduction',]
-        }],
-        attributes: ['id', 'name', 'account', 'avatar', 'cover'],
-      }).then(followings => {
-        return res.json(followings.Followings)
-      })
+        {
+          include: [{
+            model: User, as: 'Followings',
+            attributes: [['id', 'followingId'],
+              'name',
+              'account',
+              'avatar',
+              'cover',
+              'introduction',]
+          }],
+          attributes: ['id', 'name', 'account', 'avatar', 'cover'],
+        }).then(followings => {
+      return res.json(followings.Followings)
+    })
   },
 
   getTopUsers: (req, res) => {
@@ -265,7 +283,7 @@ const userController = {
         'role',
         [
           sequelize.literal(
-            '(SELECT COUNT(*) FROM Followships WHERE Followships.followingId = User.id)'
+              '(SELECT COUNT(*) FROM Followships WHERE Followships.followingId = User.id)'
           ),
           'followersCount'
         ]
@@ -273,16 +291,16 @@ const userController = {
       order: [[sequelize.literal('followersCount'), 'DESC']],
       limit: 10
     })
-      .then(users => {
-        users = users.filter(user => (
-          !user.role.includes('admin')
-        ))
-        users = users.map(user => ({
-          ...user.dataValues,
-          isFollowed: req.user.Followings.map(d => d.id).includes(user.id)
-        }))
-        return res.json(users)
-      })
+        .then(users => {
+          users = users.filter(user => (
+              !user.role.includes('admin')
+          ))
+          users = users.map(user => ({
+            ...user.dataValues,
+            isFollowed: req.user.Followings.map(d => d.id).includes(user.id)
+          }))
+          return res.json(users)
+        })
   }
 }
 
