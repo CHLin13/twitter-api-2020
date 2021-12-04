@@ -139,9 +139,9 @@ const userController = {
             Like,
           ],
           attributes:[
-              'id',
-              'UserId',
-              'description',
+            'id',
+            'UserId',
+            'description',
             'createdAt',
             'updatedAt',
             [
