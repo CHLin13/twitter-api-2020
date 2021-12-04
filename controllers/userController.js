@@ -81,12 +81,11 @@ const userController = {
   //         }
   //       })
   // },
-  getTweets: async (req, res) => {
-    try {
+  getTweets: (req, res) => {
       const loginId = helpers.getUser(req).id
-      const tweets = await Tweet.findAll({
-        where: { UserId: req.params.id },
-        attributes: [
+    Tweet.findAll({
+      where: { UserId: req.params.id },
+      attributes: [
           'id',
           'UserId',
           'description',
@@ -103,12 +102,9 @@ const userController = {
           { model: User, attributes: ['id', 'name', 'account', 'avatar'] },
         ],
         order: [['createdAt', 'DESC']],
+      }).then( tweets => {
+        return res.json(tweets)
       })
-      return res.status(200).json(tweets)
-    } catch (err) {
-      const data = { status: 'error', message: err }
-      return res.json(data)
-    }
   },
 
   getUser: (req, res) => {
