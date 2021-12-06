@@ -129,33 +129,38 @@ const userController = {
     })
   },
   getLikes: (req, res) => {
-    Like.findAll({
-      where: { UserId: req.params.id },
+    Tweet.findAll({
+      attributes: [
+        ['id','TweetId'],
+        'UserId',
+        'description',
+        'createdAt',
+        'updatedAt',
+        [
+          sequelize.literal(
+              '(SELECT COUNT(*) FROM Likes WHERE Likes.TweetId = Tweet.id)'
+          ),
+          'likeTweetCount'
+        ],
+        [
+          sequelize.literal(
+              '(SELECT COUNT(*) FROM Replies WHERE Replies.TweetId = Tweet.id)'
+          ),
+          'replyTweetCount'
+        ],
+        [
+          sequelize.literal(
+              `EXISTS (SELECT 1 FROM Likes WHERE UserId = ${helpers.getUser(req).id} AND TweetId = Tweet.id)`
+          ),
+          'isLiked'
+        ]
+      ],
       include: [
         {
-          model: Tweet,
-          include: [{ model: User },
-            Reply,
-            Like,
-          ],
-          attributes:[
-            'id',
-            'UserId',
-            'description',
-            'createdAt',
-            'updatedAt',
-            [
-              sequelize.literal(
-                  '(SELECT COUNT(*) FROM Likes WHERE Likes.TweetId = Tweet.id)'
-              ),
-              'likeCount'
-            ],
-            [
-              sequelize.literal(
-                  '(SELECT COUNT(*) FROM Replies WHERE Replies.TweetId = Tweet.id)'
-              ),
-              'replyCount'
-            ]]
+          where: { UserId: req.params.id },
+          model: Like,
+          attributes:[]
+          // include: [{ model: User }]
         }
       ]
     }).then(like => {
