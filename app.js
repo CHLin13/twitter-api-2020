@@ -16,7 +16,8 @@ const http = createServer(app)
 const io = new Server(http, {
   cors: {
     origin: "http://localhost:8080",
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   }
 })
 
