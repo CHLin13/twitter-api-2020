@@ -48,31 +48,46 @@ io.on('connection', (socket) => {
       })
   })
   socket.on('emit_method', (msg) => {
-    Chatroom.create({
-      User1Id: 999,
-      User2Id: msg.userId,
-      message: msg.msg
-    })
-      .then(() => {
-        Chatroom.findAll({
-          where: { User2Id: msg.userId },
-          include: [{
-            model: User,
-            as: 'User2',
-            attributes: [
-              'id',
-              'name',
-              'account',
-              'avatar'
-            ]
-          }],
-          order: [['createdAt', 'DESC']],
-          limit: 1
-        })
-          .then(chatroom => {
-            return io.emit('self', chatroom)
-          })
+    if (msg.msg !== '') {
+      Chatroom.create({
+        User1Id: 999,
+        User2Id: msg.userId,
+        message: msg.msg
       })
+        .then(() => {
+          Chatroom.findAll({
+            where: { User2Id: msg.userId },
+            include: [{
+              model: User,
+              as: 'User2',
+              attributes: [
+                'id',
+                'name',
+                'account',
+                'avatar'
+              ]
+            }],
+            order: [['createdAt', 'DESC']],
+            limit: 1
+          })
+            .then(chatroom => {
+              return io.emit('self', chatroom)
+            })
+        })
+    } else {
+      User.findOne({
+        where: { id: msg.userId },
+        attributes: [
+          'id',
+          'name',
+          'account',
+          'avatar'
+        ]
+      })
+        .then(user => {
+          return io.emit('self', user)
+        })
+    }
   })
 })
 
