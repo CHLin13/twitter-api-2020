@@ -33,33 +33,61 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 io.on('connection', (socket) => {
-  console.log('a user connected')
-  socket.on('emit_method', (msg) => {
-    Chatroom.create({
-      User1Id: 999,
-      User2Id: msg.userId,
-      message: msg.msg
+  socket.on('connect', (msg) => {
+    return User.findOne({
+      where: { id: msg.userId },
+      attributes: [
+        'id',
+        'name',
+        'account',
+        'avatar'
+      ]
     })
-      .then(() => {
-        Chatroom.findAll({
-          where: { User2Id: msg.userId },
-          include: [{
-            model: User,
-            as: 'User2',
-            attributes: [
-              'id',
-              'name',
-              'account',
-              'avatar'
-            ]
-          }],
-          order: [['createdAt', 'DESC']],
-          limit: 1
-        })
-          .then(chatroom => {
-            return io.emit('self', chatroom)
-          })
+      .then(user => {
+        return io.emit('self', user)
       })
+  })
+  socket.on('emit_method', (msg) => {
+    if (msg.msg !== '') {
+      Chatroom.create({
+        User1Id: 999,
+        User2Id: msg.userId,
+        message: msg.msg
+      })
+        .then(() => {
+          Chatroom.findAll({
+            where: { User2Id: msg.userId },
+            include: [{
+              model: User,
+              as: 'User2',
+              attributes: [
+                'id',
+                'name',
+                'account',
+                'avatar'
+              ]
+            }],
+            order: [['createdAt', 'DESC']],
+            limit: 1
+          })
+            .then(chatroom => {
+              return io.emit('self', chatroom)
+            })
+        })
+    } else {
+      User.findOne({
+        where: { id: msg.userId },
+        attributes: [
+          'id',
+          'name',
+          'account',
+          'avatar'
+        ]
+      })
+        .then(user => {
+          return io.emit('self', user)
+        })
+    }
   })
 })
 
