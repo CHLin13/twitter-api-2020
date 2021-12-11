@@ -9,6 +9,7 @@ const likeController = require('../controllers/likeController')
 const replyController = require('../controllers/replyController')
 const followshipController = require('../controllers/followshipController')
 const chatroomController = require('../controllers/chatroomController')
+const messageController = require('../controllers/messageController')
 
 const multer = require('multer')
 const upload = multer({ dest: 'temp/' })
@@ -55,5 +56,9 @@ router.get('/admin/users/currentUser', authenticated, authenticatedAdmin, adminC
 router.post('/chatroom', authenticated, authenticatedUser, chatroomController.getIn)
 router.delete('/chatroom/:id', authenticated, authenticatedUser, chatroomController.getOut)
 router.get('/chatroom/online', authenticated, authenticatedUser, chatroomController.getOnlineUsers)
+
+//private
+router.get('/private/:id', authenticated, authenticatedUser, messageController.getMessage)
+router.post('/private/:id', authenticated, authenticatedUser, messageController.postMessage)
 
 module.exports = router
