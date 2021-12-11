@@ -1,45 +1,45 @@
 const db = require('../models')
 const User = db.User
-const Chatroom = db.Chatroom
+const Online = db.Online
 
 const chatroomController = {
   getIn: (req, res) => {
-    Chatroom.findOne({ where: { User2Id: req.body.id } })
+    Online.findOne({ where: { UserId: req.body.id } })
       .then(user => {
         if (user) {
           return res.json({ status: 'error', message: '已經加入聊天室' })
         } else {
-          Chatroom.create({
-            User1Id: 999,
-            User2Id: req.body.id
+          Online.create({
+            UserId: req.body.id
           })
-            .then(() => {
-              return res.json({ status: 'success', message: '成功加入聊天室' })
+          User.findByPk(req.body.id)
+            .then(user => {
+              return res.json({ status: 'success', message: `${user.name} 加入聊天室` })
             })
         }
       })
   },
 
   getOut: (req, res) => {
-    return Chatroom.destroy({ where: { User2Id: req.params.id } })
-      .then(() => {
-        return res.json({ status: 'success', message: '成功離開聊天室' })
+    return Promise.all([
+      Online.destroy({ where: { UserId: req.params.id } }),
+      User.findByPk(req.params.id)
+    ])
+      .then(([online, user]) => {
+        return res.json({ status: 'success', message: `${user.name} 離開聊天室` })
       })
   },
 
   getOnlineUsers: (req, res) => {
-    return Chatroom.findAll({
-      where: { User1Id: 999 },
+    return Online.findAll({
       include: [{
-        model: User,
-        as: 'User2',
-        attributes: [
+        model: User, attributes: [
           'id',
           'name',
           'avatar',
           'account'
         ]
-      }]
+      }],
     })
       .then(users => {
         return res.json(users)
