@@ -15,6 +15,7 @@ const messageController = {
             messages.map(message =>({
                 SenderId: helpers.getUser(req).id,
                 ReceiverId: req.body.id,
+                targetChannel: req.body.targetChannel,
                 createdAt: message.createdAt,
                 updatedAt: message.updatedAt
             }))
@@ -25,7 +26,8 @@ const messageController = {
         Message.create({
             SenderId: helpers.getUser(req).id,
             ReceiverId: req.body.id,
-            message: req.body.message
+            message: req.body.message,
+            targetChannel: req.body.targetChannel
         })
             .then(() => {
             res.json({ status: 'success', message: '成功發送私訊' })
