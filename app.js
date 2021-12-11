@@ -34,20 +34,34 @@ app.use(passport.session())
 
 io.on('connection', (socket) => {
   socket.on('connection', (id) => {
-    return User.findByPk(id, {
-      attributes: [
-        'id',
-        'name',
-        'account',
-        'avatar'
-      ]
-    })
-      .then(user => {
-        return io.emit('self', user)
+    return Promise.all([
+      User.findByPk(id, {
+        attributes: [
+          'id',
+          'name',
+          'account',
+          'avatar'
+        ]
+      }),
+      Chatroom.findAll({
+        include: [{
+          model: User,
+          as: 'User2',
+          attributes: [
+            'id',
+            'name',
+            'account',
+            'avatar'
+          ]
+        }]
+      })
+    ])
+      .then(([user, chatroom]) => {
+        return io.emit('self',[user, chatroom])
       })
   })
+  
   socket.on('emit_method', (msg) => {
-    if (msg.msg !== '') {
       Chatroom.create({
         User1Id: 999,
         User2Id: msg.userId,
@@ -73,20 +87,6 @@ io.on('connection', (socket) => {
               return io.emit('self', chatroom)
             })
         })
-    } else {
-      User.findOne({
-        where: { id: msg.userId },
-        attributes: [
-          'id',
-          'name',
-          'account',
-          'avatar'
-        ]
-      })
-        .then(user => {
-          return io.emit('self', user)
-        })
-    }
   })
 })
 
