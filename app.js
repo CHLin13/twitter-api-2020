@@ -57,10 +57,10 @@ io.on('connection', (socket) => {
       })
     ])
       .then(([user, chatroom]) => {
-        return io.emit('self',[user, chatroom])
+        return io.emit('login',[user, chatroom])
       })
   })
-  
+
   socket.on('emit_method', (msg) => {
       Chatroom.create({
         User1Id: 999,
@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
             limit: 1
           })
             .then(chatroom => {
-              return io.emit('self', chatroom)
+              return io.emit('single_thread', chatroom)
             })
         })
   })
