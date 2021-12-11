@@ -12,6 +12,9 @@ const passport = require('./config/passport')
 const app = express()
 const port = process.env.PORT || 3000
 
+const db = require('./models')
+const Chatroom = db.Chatroom
+
 const http = createServer(app)
 const io = new Server(http, {
   cors: {
@@ -31,8 +34,17 @@ app.use(passport.session())
 io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('emit_method', (msg) => {
-    console.log(msg)
-    socket.emit('self', msg);
+    Chatroom.create({
+      User1Id: 999,
+      User2Id: msg.userId,
+      message: msg.msg
+    })
+      .then(() => {
+        Chatroom.findAll({ where: { User2Id: msg.userId }, include: [{ model: User, as: 'User2' }], order: [['createdAt', 'DESC']], limit: 1 })
+          .then(chatroom => {
+            return io.emit('self', chatroom)
+          })
+      })
   })
 })
 
