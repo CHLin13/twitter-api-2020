@@ -10,15 +10,9 @@ const Message = db.message
 
 const messageController = {
     getMessage:(req,res) =>{
-        return Message.findByPk(helpers.getUser(req).id, {
+        return Message.findAll( {
+            where: { targetChannel: req.body.targetChannel }
         }).then(messages =>{
-            messages.map(message =>({
-                SenderId: helpers.getUser(req).id,
-                ReceiverId: req.body.id,
-                targetChannel: req.body.targetChannel,
-                createdAt: message.createdAt,
-                updatedAt: message.updatedAt
-            }))
             return res.json(messages)
         })
     },
