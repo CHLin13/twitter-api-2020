@@ -14,6 +14,7 @@ const port = process.env.PORT || 3000
 
 const db = require('./models')
 const Chatroom = db.Chatroom
+const User = db.User
 
 const http = createServer(app)
 const io = new Server(http, {
@@ -40,7 +41,21 @@ io.on('connection', (socket) => {
       message: msg.msg
     })
       .then(() => {
-        Chatroom.findAll({ where: { User2Id: msg.userId }, include: [{ model: User, as: 'User2' }], order: [['createdAt', 'DESC']], limit: 1 })
+        Chatroom.findAll({
+          where: { User2Id: msg.userId },
+          include: [{
+            model: User,
+            as: 'User2',
+            attributes: [
+              'id',
+              'name',
+              'account',
+              'avatar'
+            ]
+          }],
+          order: [['createdAt', 'DESC']],
+          limit: 1
+        })
           .then(chatroom => {
             return io.emit('self', chatroom)
           })
