@@ -17,7 +17,7 @@ const messageController = {
                     { SenderId: req.params.id, ReceiverId: helpers.getUser(req).id}
                 ]
             },
-            order: [['createdAt', 'DESC']]
+            order: [['createdAt', 'ASC']]
         }).then(messages =>{
             return res.json(messages)
         })
