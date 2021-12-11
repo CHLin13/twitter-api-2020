@@ -10,15 +10,16 @@ const passport = require('./config/passport')
 const app = express()
 const port = process.env.PORT || 3000
 
-const http = require('http')
-const server = http.createServer(app)
-const { Server } = require("socket.io")(httpServer, {
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:8080",
     methods: ["GET", "POST"]
   }
-})
-const io = new Server(server)
+});
 
 app.use(cors())
 app.use(express.urlencoded({ extended: true }))
@@ -32,6 +33,8 @@ io.on('connection', (socket) => {
     console.log('user disconnected')
   })
 })
+
+httpServer.listen(3000);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
