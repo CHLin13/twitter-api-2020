@@ -57,7 +57,8 @@ io.on('connection', (socket) => {
       })
     ])
       .then(([user, chatroom]) => {
-        return io.emit('login',[user, chatroom])
+        socket.emit('login',chatroom)
+        io.emit('login', user)
       })
   })
 
