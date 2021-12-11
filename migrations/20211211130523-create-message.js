@@ -17,6 +17,9 @@ module.exports = {
       message: {
         type: Sequelize.TEXT
       },
+      targetChannel:{
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
