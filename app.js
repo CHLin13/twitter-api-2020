@@ -33,7 +33,20 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 io.on('connection', (socket) => {
-  console.log('a user connected')
+  socket.on('connect', (msg) => {
+    return User.findOne({
+      where: { id: msg.userId },
+      attributes: [
+        'id',
+        'name',
+        'account',
+        'avatar'
+      ]
+    })
+      .then(user => {
+        return io.emit('self', user)
+      })
+  })
   socket.on('emit_method', (msg) => {
     Chatroom.create({
       User1Id: 999,
