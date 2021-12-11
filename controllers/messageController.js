@@ -6,12 +6,18 @@ const User = db.User
 const Tweet = db.Tweet
 const Like = db.Like
 const Reply = db.Reply
-const Message = db.message
+const Message = db.Message
 
 const messageController = {
     getMessage:(req,res) =>{
-        return Message.findAll( {
-            where: { targetChannel: req.body.targetChannel }
+        return Message.findAll({
+            where: {
+                [Op.or]: [
+                    { SenderId: helpers.getUser(req).id, ReceiverId: req.params.id},
+                    { SenderId: req.params.id, ReceiverId: helpers.getUser(req).id}
+                ]
+            },
+            order: [['createdAt', 'DESC']]
         }).then(messages =>{
             return res.json(messages)
         })
@@ -28,6 +34,4 @@ const messageController = {
         })
     }
 }
-
 module.exports = messageController
-
