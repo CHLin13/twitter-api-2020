@@ -9,13 +9,25 @@ const Reply = db.Reply
 const Message = db.message
 
 const messageController = {
+    getMessage:(req,res) =>{
+        return Message.findByPk(helpers.getUser(req).id, {
+        }).then(messages =>{
+            messages.map(message =>({
+                SenderId: helpers.getUser(req).id,
+                ReceiverId: req.body.id,
+                createdAt: message.createdAt,
+                updatedAt: message.updatedAt
+            }))
+            return res.json(messages)
+        })
+    },
     postMessage: (req, res) => {
         Message.create({
             SenderId: helpers.getUser(req).id,
             ReceiverId: req.body.id,
             message: req.body.message
         })
-            .then((tweet) => {
+            .then(() => {
             res.json({ status: 'success', message: '成功發送私訊' })
         })
     }
