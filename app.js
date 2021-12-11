@@ -33,9 +33,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 io.on('connection', (socket) => {
-  socket.on('connect', (msg) => {
-    return User.findOne({
-      where: { id: msg.userId },
+  socket.on('connection', (id) => {
+    return User.findByPk(id, {
       attributes: [
         'id',
         'name',
