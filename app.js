@@ -17,7 +17,6 @@ const io = new Server(http, {
   cors: {
     origin: "http://localhost:8080",
     methods: ["GET", "POST"],
-    transports: ['websocket', 'polling'],
     credentials: true
   },
   allowEIO3: true
@@ -31,8 +30,9 @@ app.use(passport.session())
 
 io.on('connection', (socket) => {
   console.log('a user connected')
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg)
+  socket.on('emit_method', (msg) => {
+    console.log(msg)
+    socket.emit('self', msg);
   })
 })
 
