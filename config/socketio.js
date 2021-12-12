@@ -19,7 +19,7 @@ module.exports = (io) => {
                                     }),
                                     Chatroom.findAll({
                                         include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }],
-                                        order: [['createdAt', 'DESC']]
+                                        order: [['createdAt', 'ASC']]
                                     })
                                 ])
                                     .then(([users, chatroom]) => {
@@ -34,7 +34,7 @@ module.exports = (io) => {
                             }),
                             Chatroom.findAll({
                                 include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }],
-                                order: [['createdAt', 'DESC']]
+                                order: [['createdAt', 'ASC']]
                             })
                         ])
                             .then(([users, chatroom]) => {
