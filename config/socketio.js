@@ -72,8 +72,17 @@ module.exports = (io) => {
                     console.log(error)
                 })
         })
-        socket.on('leave', () => {
+        socket.on('leave', (UserId) => {
             console.log('user disconnected')
+            Joinroom.destroy({ where: { UserId: UserId } })
+                .then(() => {
+                    Joinroom.findAll({
+                        include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
+                    })
+                        .then(users => {
+                            io.emit('onlineUsers', users)
+                        })
+                })
         })
     })
 }
