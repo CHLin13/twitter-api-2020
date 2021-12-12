@@ -1,23 +1,17 @@
 const db = require('../models')
-const User = db.User
-const Chat = db.Chat
 const Message = db.Message
-const Subscribe = db.Subscribe
-const Notification = db.Notification
-const Reply = db.Reply
-const Tweet = db.Tweet
+
 module.exports = (io) => {
     io.on('connection', socket => {
         console.log('user connected...')
         socket.on('private message', (msg) => {
             console.log('private_msg====>', msg)
             socket.broadcast.emit('unread_msg', msg)
-            const UserId = msg.UserId
             return Promise.all([
                 Message.create({
-                    ReceiverId: msg.receiverId,
+                    ReceiverId: msg.ReceiverId,
                     message: msg.message,
-                    SenderId: UserId,
+                    SenderId: msg.SenderId,
                     targetChannel: msg.targetChannel
                 })
             ])
@@ -34,7 +28,7 @@ module.exports = (io) => {
         socket.on('leave private chatroom', (channel) => {
             socket.leave(channel)
         })
-        socket.on('leave', (id) => {
+        socket.on('leave', () => {
             console.log('user disconnected')
         })
     })
