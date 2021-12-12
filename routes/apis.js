@@ -8,7 +8,6 @@ const tweetController = require('../controllers/tweetController')
 const likeController = require('../controllers/likeController')
 const replyController = require('../controllers/replyController')
 const followshipController = require('../controllers/followshipController')
-const chatroomController = require('../controllers/chatroomController')
 const messageController = require('../controllers/messageController')
 
 const multer = require('multer')
@@ -51,11 +50,6 @@ router.get('/admin', authenticated, authenticatedAdmin, adminController.getTweet
 router.delete('/admin/tweets/:id', authenticated, authenticatedAdmin, adminController.deleteTweet)
 router.get('/admin/users', authenticated, authenticatedAdmin, adminController.getUsers)
 router.get('/admin/users/currentUser', authenticated, authenticatedAdmin, adminController.getCurrentUser)
-
-//chatroon
-router.post('/chatroom', authenticated, authenticatedUser, chatroomController.getIn)
-router.delete('/chatroom/:id', authenticated, authenticatedUser, chatroomController.getOut)
-router.get('/chatroom/online', authenticated, authenticatedUser, chatroomController.getOnlineUsers)
 
 //private
 router.get('/private/:id', authenticated, authenticatedUser, messageController.getMessage)
