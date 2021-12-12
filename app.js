@@ -15,7 +15,7 @@ app.use(cors())
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
   cors: {
-    origin: ["http://localhost:8080", "https://fast-fortress-15170.herokuapp.com/"],
+    origin: ["http://localhost:8080", "https://fast-fortress-15170.herokuapp.com/", "https://mhsiungw.github.io/Simple-Twitter-feature-chatroom/"],
     methods: ["GET", "POST"],
     credentials: true
   },
