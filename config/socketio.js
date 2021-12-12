@@ -23,7 +23,7 @@ module.exports = (io) => {
                                 ])
                                     .then(([users, chatroom]) => {
                                         io.emit('onlineUsers', users)
-                                        socket.emit('historyTexts', chatroom)
+                                        io.emit('historyTexts', chatroom)
                                     })
                             })
                     } else {
@@ -37,7 +37,7 @@ module.exports = (io) => {
                         ])
                             .then(([users, chatroom]) => {
                                 io.emit('onlineUsers', users)
-                                socket.emit('historyTexts', chatroom)
+                                io.emit('historyTexts', chatroom)
                             })
                     }
                 })
