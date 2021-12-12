@@ -33,7 +33,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 io.on('connection', (socket) => {
-  socket.on('connection', (id) => {
+  socket.on('getCurrentUserId', (id) => {
     return Promise.all([
       User.findByPk(id, {
         attributes: [
@@ -57,8 +57,8 @@ io.on('connection', (socket) => {
       })
     ])
       .then(([user, chatroom]) => {
-        socket.emit('login',chatroom)
-        io.emit('login', user)
+        socket.emit('historyTexts',chatroom)
+        io.emit('onlineUsers', user)
       })
   })
 
