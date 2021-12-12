@@ -1,5 +1,7 @@
 const db = require('../models')
 const Message = db.Message
+const Chatroom = db.Chatroom
+const User = db.User
 
 module.exports = (io) => {
     io.on('connection', socket => {
