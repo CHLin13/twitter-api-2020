@@ -2,36 +2,38 @@ const db = require('../models')
 const Message = db.Message
 const Chatroom = db.Chatroom
 const User = db.User
+const Joinroom = db.Joinroom
 
 module.exports = (io) => {
     io.on('connection', socket => {
         console.log('user connected...')
-        socket.on('getCurrentUserId', (id) => {
-            return Promise.all([
-                User.findByPk(id, {
-                    attributes: [
-                        'id',
-                        'name',
-                        'account',
-                        'avatar'
-                    ]
-                }),
-                Chatroom.findAll({
-                    include: [{
-                        model: User,
-                        as: 'User2',
-                        attributes: [
-                            'id',
-                            'name',
-                            'account',
-                            'avatar'
-                        ]
-                    }]
+        socket.on('getCurrentUserId', (UserId) => {
+            Joinroom.findOne({ where: { UserId: UserId } })
+                .then(user => {
+                    if (!user) {
+                        Joinroom.create({ UserId })
+                            .then(() => {
+                                Joinroom.findAll({
+                                    include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
+                                })
+                                    .then(users => {
+                                        io.emit('onlineUsers', users)
+                                    })
+                            })
+                    } else {
+                        Joinroom.findAll({
+                            include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
+                        })
+                            .then(users => {
+                                io.emit('onlineUsers', users)
+                            })
+                    }
                 })
-            ])
-                .then(([user, chatroom]) => {
+            Chatroom.findAll({
+                include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }]
+            })
+                .then(chatroom => {
                     socket.emit('historyTexts', chatroom)
-                    io.emit('onlineUsers', user)
                 })
         })
 
@@ -44,16 +46,7 @@ module.exports = (io) => {
                 .then(() => {
                     Chatroom.findAll({
                         where: { User2Id: msg.userId },
-                        include: [{
-                            model: User,
-                            as: 'User2',
-                            attributes: [
-                                'id',
-                                'name',
-                                'account',
-                                'avatar'
-                            ]
-                        }],
+                        include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }],
                         order: [['createdAt', 'DESC']],
                         limit: 1
                     })
