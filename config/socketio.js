@@ -18,7 +18,8 @@ module.exports = (io) => {
                                         include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
                                     }),
                                     Chatroom.findAll({
-                                        include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }]
+                                        include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }],
+                                        order: [['createdAt', 'DESC']]
                                     })
                                 ])
                                     .then(([users, chatroom]) => {
@@ -32,7 +33,8 @@ module.exports = (io) => {
                                 include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
                             }),
                             Chatroom.findAll({
-                                include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }]
+                                include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }],
+                                order: [['createdAt', 'DESC']]
                             })
                         ])
                             .then(([users, chatroom]) => {
