@@ -59,6 +59,5 @@ router.get('/chatroom/online', authenticated, authenticatedUser, chatroomControl
 
 //private
 router.get('/private/:id', authenticated, authenticatedUser, messageController.getMessage)
-router.post('/private/:id', authenticated, authenticatedUser, messageController.postMessage)
 
 module.exports = router
