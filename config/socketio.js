@@ -13,27 +13,33 @@ module.exports = (io) => {
                     if (!user) {
                         Joinroom.create({ UserId })
                             .then(() => {
-                                Joinroom.findAll({
-                                    include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
-                                })
-                                    .then(users => {
+                                return Promise.all([
+                                    Joinroom.findAll({
+                                        include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
+                                    }),
+                                    Chatroom.findAll({
+                                        include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }]
+                                    })
+                                ])
+                                    .then(([users, chatroom]) => {
                                         io.emit('onlineUsers', users)
+                                        socket.emit('historyTexts', chatroom)
                                     })
                             })
                     } else {
-                        Joinroom.findAll({
-                            include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
-                        })
-                            .then(users => {
+                        return Promise.all([
+                            Joinroom.findAll({
+                                include: [{ model: User, attributes: ['id', 'name', 'account', 'avatar'] }]
+                            }),
+                            Chatroom.findAll({
+                                include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }]
+                            })
+                        ])
+                            .then(([users, chatroom]) => {
                                 io.emit('onlineUsers', users)
+                                socket.emit('historyTexts', chatroom)
                             })
                     }
-                })
-            Chatroom.findAll({
-                include: [{ model: User, as: 'User2', attributes: ['id', 'name', 'account', 'avatar'] }]
-            })
-                .then(chatroom => {
-                    socket.emit('historyTexts', chatroom)
                 })
         })
 
