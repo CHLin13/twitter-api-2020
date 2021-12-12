@@ -4,6 +4,7 @@ const Message = db.Message
 module.exports = (io) => {
     io.on('connection', socket => {
 
+
         console.log('user connected...')
         socket.on('private message', (msg) => {
             console.log('private_msg====>', msg)
